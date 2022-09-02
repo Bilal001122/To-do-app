@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:to_do_app/screens/screens.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,16 +18,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Text(
-            'Hello world',
-            style: TextStyle(
-              fontSize: 22,
-            ),
-          ),
-        ),
-      ),
+      home: HomeScreen(),
     );
   }
 }
