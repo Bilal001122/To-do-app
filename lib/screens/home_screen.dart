@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:to_do_app/database_helper.dart';
+import 'package:to_do_app/models/task.dart';
 import 'package:to_do_app/screens/screens.dart';
 import 'package:to_do_app/widgets/widgets.dart';
 
@@ -10,6 +12,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  DataBaseHelper _dataBaseHelper = DataBaseHelper();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,22 +53,22 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 32,
               ),
               Expanded(
-                child: ListView(
-                  children: [
-                    TaskCardWidget(
-                      title: 'Get Started!',
-                      description:
-                          'Hello User! Welcome to DoIT app, this is a default task that you can edit or delete to start using the app',
-                    ),
-                    TaskCardWidget(),
-                    TaskCardWidget(),
-                    TaskCardWidget(),
-                    TaskCardWidget(),
-                    TaskCardWidget(),
-                    TaskCardWidget(),
-                  ],
+                child: FutureBuilder(
+                  initialData: const [],
+                  future: _dataBaseHelper.getTasks(),
+                  builder: (context, AsyncSnapshot snapshot) {
+                    return ListView.builder(
+                      itemCount: snapshot.data.length!,
+                      itemBuilder: (context, index) {
+                        return TaskCardWidget(
+                          title: snapshot.data[index].title,
+                          description: snapshot.data[index].description,
+                        );
+                      },
+                    );
+                  },
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -72,3 +76,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+// TaskCardWidget(
+//   title: 'Get Started!',
+//   description:
+//       'Hello User! Welcome to DoIT app, this is a default task that you can edit or delete to start using the app',
+// ),
