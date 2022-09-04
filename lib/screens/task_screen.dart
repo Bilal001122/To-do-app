@@ -15,8 +15,10 @@ class _TaskScreenState extends State<TaskScreen> {
   DataBaseHelper _dbHelper = DataBaseHelper();
   String? _taskTitle;
   String? _taskDescription;
-  int _taskId = 0;
 
+  String? _newtaskTitle;
+  String? _newtaskDescription;
+  int _taskId = 0;
   FocusNode? _titleFocusNode;
   FocusNode? _descriptionFocusNode;
 
@@ -63,8 +65,15 @@ class _TaskScreenState extends State<TaskScreen> {
                       padding: const EdgeInsets.all(7.0),
                       child: InkWell(
                         borderRadius: BorderRadius.circular(30),
-                        onTap: () {
+                        onTap: () async {
                           Navigator.pop(context);
+                          if (_taskId == 0) {
+                            Task newTask = Task(
+                              title: _newtaskTitle,
+                              description: _newtaskDescription,
+                            );
+                            _dbHelper.insertTask(newTask);
+                          }
                         },
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -81,11 +90,7 @@ class _TaskScreenState extends State<TaskScreen> {
                         onSubmitted: (value) async {
                           if (value != "") {
                             if (_taskId == 0) {
-                              Task _newTask = Task(
-                                title: value,
-                                description: '',
-                              );
-                              await _dbHelper.insertTask(_newTask);
+                              _newtaskTitle = value;
                             } else {
                               await _dbHelper.updateTaskTitle(_taskId, value);
                             }
@@ -111,9 +116,14 @@ class _TaskScreenState extends State<TaskScreen> {
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: TextField(
                   focusNode: _descriptionFocusNode,
-                  onSubmitted: (value) {
-                    _dbHelper.updateTaskDescription(_taskId, value);
-                    _taskDescription = value;
+                  onSubmitted: (value) async {
+                    if (value != "") {
+                      if (_taskId == 0) {
+                        _newtaskDescription = value;
+                      } else {
+                        await _dbHelper.updateTaskDescription(_taskId, value);
+                      }
+                    }
                   },
                   controller: TextEditingController(text: _taskDescription),
                   decoration: InputDecoration(
