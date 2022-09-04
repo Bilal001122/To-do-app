@@ -44,4 +44,20 @@ class DataBaseHelper {
       },
     );
   }
+
+  Future<void> updateTaskTitle(int id, String title) async {
+    Database _db = await dataBase();
+    await _db.rawUpdate("UPDATE tasks SET title = '$title' WHERE id = '$id'");
+  }
+
+  Future<void> updateTaskDescription(int id, String description) async {
+    Database _db = await dataBase();
+    await _db.rawUpdate(
+        "UPDATE tasks SET description = '$description' WHERE id = '$id'");
+  }
+
+  Future<void> deleteTask(int id) async {
+    Database _db = await dataBase();
+    await _db.rawDelete("DELETE FROM tasks WHERE id = '$id'");
+  }
 }

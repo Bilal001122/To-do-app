@@ -1,21 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:to_do_app/database_helper.dart';
 import 'package:to_do_app/models/task.dart';
-import 'package:to_do_app/widgets/widgets.dart';
 
 class TaskScreen extends StatefulWidget {
-  const TaskScreen({Key? key}) : super(key: key);
+  final Task? task;
+
+  const TaskScreen({Key? key, required this.task}) : super(key: key);
 
   @override
   State<TaskScreen> createState() => _TaskScreenState();
 }
 
 class _TaskScreenState extends State<TaskScreen> {
+  DataBaseHelper _dbHelper = DataBaseHelper();
+  String? _taskTitle;
+  String? _taskDescription;
+  int _taskId = 0;
+
+  FocusNode? _titleFocusNode;
+  FocusNode? _descriptionFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.task != null) {
+      _taskId = widget.task!.id!;
+      _taskTitle = widget.task!.title;
+      _taskDescription = widget.task!.description;
+    }
+
+    _descriptionFocusNode = FocusNode();
+    _titleFocusNode = FocusNode();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          if (_taskId != 0) {
+            _dbHelper.deleteTask(_taskId);
+            Navigator.pop(context);
+          } else {}
+        },
         backgroundColor: Color(0xFFFE3577),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -50,15 +77,22 @@ class _TaskScreenState extends State<TaskScreen> {
                     ),
                     Expanded(
                       child: TextField(
+                        focusNode: _titleFocusNode,
                         onSubmitted: (value) async {
                           if (value != "") {
-                            DataBaseHelper _dbHelper = DataBaseHelper();
-                            Task _newTask = Task(
-                              title: value,
-                            );
-                            await _dbHelper.insertTask(_newTask);
+                            if (_taskId == 0) {
+                              Task _newTask = Task(
+                                title: value,
+                                description: '',
+                              );
+                              await _dbHelper.insertTask(_newTask);
+                            } else {
+                              await _dbHelper.updateTaskTitle(_taskId, value);
+                            }
                           }
+                          _descriptionFocusNode?.requestFocus();
                         },
+                        controller: TextEditingController(text: _taskTitle),
                         decoration: InputDecoration(
                           hintText: 'Enter Task Title',
                           border: InputBorder.none,
@@ -76,22 +110,18 @@ class _TaskScreenState extends State<TaskScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 12.0),
                 child: TextField(
+                  focusNode: _descriptionFocusNode,
+                  onSubmitted: (value) {
+                    _dbHelper.updateTaskDescription(_taskId, value);
+                    _taskDescription = value;
+                  },
+                  controller: TextEditingController(text: _taskDescription),
                   decoration: InputDecoration(
                     hintText: 'Enter Description for the Task',
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 24),
                   ),
                 ),
-              ),
-              ToDoWidget(
-                text: 'Create your first task',
-                isDone: false,
-              ),
-              ToDoWidget(
-                isDone: true,
-              ),
-              ToDoWidget(
-                isDone: false,
               ),
             ],
           ),

@@ -23,10 +23,14 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             MaterialPageRoute(
               builder: (context) {
-                return TaskScreen();
+                return TaskScreen(
+                  task: null,
+                );
               },
             ),
-          );
+          ).then((value) {
+            setState(() {});
+          });
         },
         backgroundColor: Color(0xFF7349FE),
         shape: RoundedRectangleBorder(
@@ -53,16 +57,32 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 32,
               ),
               Expanded(
-                child: FutureBuilder(
+                child: FutureBuilder<List<Task>>(
                   initialData: const [],
                   future: _dataBaseHelper.getTasks(),
                   builder: (context, AsyncSnapshot snapshot) {
                     return ListView.builder(
-                      itemCount: snapshot.data.length!,
+                      itemCount: snapshot.data.length,
                       itemBuilder: (context, index) {
-                        return TaskCardWidget(
-                          title: snapshot.data[index].title,
-                          description: snapshot.data[index].description,
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return TaskScreen(
+                                    task: snapshot.data[index],
+                                  );
+                                },
+                              ),
+                            ).then((value) {
+                              setState(() {});
+                            });
+                          },
+                          child: TaskCardWidget(
+                            title: snapshot.data[index].title,
+                            description: snapshot.data[index].description,
+                          ),
                         );
                       },
                     );
@@ -76,8 +96,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-// TaskCardWidget(
-//   title: 'Get Started!',
-//   description:
-//       'Hello User! Welcome to DoIT app, this is a default task that you can edit or delete to start using the app',
-// ),
